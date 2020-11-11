@@ -1,0 +1,7 @@
+---
+- name: ssh config 
+  become_user: "{{ ansible_facts.env.SUDO_USER }}"
+  template:
+   src: templates/ssh/config.j2
+   dest: "~/.ssh/config"
+   mode: 0644

@@ -1,0 +1,7 @@
+---
+- name: docker group add
+  user:
+    name: "{{ ansible_facts.env.SUDO_USER }}"
+    groups: docker
+    append: yes
+

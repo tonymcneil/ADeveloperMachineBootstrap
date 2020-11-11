@@ -1,0 +1,12 @@
+---
+SCM_LOCAL_PROJECTS_DIR: "{{ COMMON_LOCAL_USER_HOME }}/Projects"
+
+VIM_DIR: "{{ SCM_LOCAL_PROJECTS_DIR }}/Vim"
+VIM_REPOS:
+  - { repo: "git@github.com:tonymcneil/VimConfig.git", local_name: "{{ VIM_DIR }}/VimConfig" }
+  - { repo: "git@github.com:tonymcneil/SpacevimConfig.git", local_name: "{{ VIM_DIR }}/SpacevimConfig" }
+
+CLJS_DIR: "{{ SCM_LOCAL_PROJECTS_DIR }}/ClojureScript"
+CLJS_REPOS:
+  - { repo: "git@github.com:FunctionalComposition/CljsNodeFileProcessing.git", local_name: "{{ CLJS_DIR }}/CljsNodeFileProcessing" }
+  - { repo: "git@github.com:tonymcneil/DependencyCheckSummary.git", local_name: "{{ CLJS_DIR }}/DependencyCheckSummary" }

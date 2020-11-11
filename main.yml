@@ -1,0 +1,16 @@
+---
+# This playbook configures a developer machine
+- name: apply common configuration
+  hosts: localhost
+  connection: local
+  become: yes
+
+  roles: # order matters
+    - common_software
+    - common_permissions
+    - common_config
+    - common_scm_repos
+    - cljc_setup
+    - vim_setup
+    - emacs_setup
+    - software_optional

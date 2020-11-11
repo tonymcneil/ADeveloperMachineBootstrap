@@ -1,0 +1,76 @@
+---
+- name: include common vars
+  include_vars:
+    file: ../common/vars/vars.common.yml
+
+- name: define local fact
+  set_fact:
+    SPACEMACS_INSTALL_DIR: "{{ COMMON_LOCAL_PROJECTS_DIR }}/Emacs/ThirdParty/spacemacs"
+    SPACEMACS_CONFIG_DIR: "{{ COMMON_LOCAL_PROJECTS_DIR }}/Emacs/SpacemacsConfig"
+
+- name: Public Spacemacs project repo
+  become_user: "{{ ansible_facts.env.SUDO_USER }}"
+  git:
+    repo: "https://github.com/syl20bnr/spacemacs"
+    dest: "{{ SPACEMACS_INSTALL_DIR }}"
+    version: "develop"
+
+- name: Public Spacemacs sym link
+  become_user: "{{ ansible_facts.env.SUDO_USER }}"
+  file:
+    src: "{{ SPACEMACS_INSTALL_DIR }}"
+    dest: "{{ COMMON_LOCAL_USER_HOME }}/.emacs.d"
+    state: link
+
+- name: Personal Spacemacs config repo
+  become_user: "{{ ansible_facts.env.SUDO_USER }}"
+  git:
+    repo: "git@github.com:tonymcneil/SpacemacsConfig.git"
+    dest: "{{ SPACEMACS_CONFIG_DIR }}"
+
+- name: Personal Spacemacs config sym link
+  become_user: "{{ ansible_facts.env.SUDO_USER }}"
+  file:
+    src: "{{ SPACEMACS_CONFIG_DIR }}/dot_spacemacs"
+    dest: "{{ COMMON_LOCAL_USER_HOME }}/.spacemacs"
+    state: link
+
+- name: apt repo (for latest emacs and keys)
+  apt_repository: 
+    repo: "ppa:kelleyk/emacs"
+    update_cache: yes
+
+- name: apt packages
+  apt:
+    name: 
+      - emacs26
+      - aspell
+      - ripgrep
+      - libxml2-utils
+      - fonts-powerline
+      - fonts-nanum 
+
+- name: npm install global packages, configure current node version via nvm for each package
+  become_user: "{{ ansible_facts.env.SUDO_USER }}"
+  shell: . {{ COMMON_LOCAL_USER_HOME }}/.nvm/nvm.sh && {{ item }}
+  args:
+    executable: /bin/bash
+  with_items:
+    - nvm use default && npm install -g js-beautify
+
+- name: install clj-kondo for clojure linting in emacs
+  shell: curl -o- https://raw.githubusercontent.com/borkdude/clj-kondo/master/script/install-clj-kondo | bash
+  args:
+    executable: /bin/bash
+    chdir: "{{ COMMON_LOCAL_USER_HOME }}"
+    creates: "{{ COMMON_EXEC_DIR }}/clj-kondo"
+
+- name: joker manual install, for clojure linting in emacs
+  vars:
+    JOKER_VERSION: "0.15.7"
+    JOKER_INSTALL_DIR: "/usr/local/bin"
+  unarchive:
+    src: "https://github.com/candid82/joker/releases/latest/download/joker-{{ JOKER_VERSION }}-linux-amd64.zip"
+    dest: "{{ JOKER_INSTALL_DIR }}"
+    creates: "{{ JOKER_INSTALL_DIR }}/joker"
+    remote_src: yes

@@ -1,0 +1,14 @@
+---
+- name: include vars
+  include_vars:
+    file: "{{ item }}"
+  with_items:
+    - ../common/vars/vars.common.yml
+    - vars/vars.scm_repos.yml
+
+- name: Project repos
+  become_user: "{{ ansible_facts.env.SUDO_USER }}"
+  git:
+    repo: "{{ item.repo }}"
+    dest: "{{ item.local_name }}"
+  with_items: "{{ CLJS_REPOS + VIM_REPOS }}"

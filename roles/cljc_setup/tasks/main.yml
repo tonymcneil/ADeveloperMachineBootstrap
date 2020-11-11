@@ -1,0 +1,35 @@
+---
+- name: include common vars
+  include_vars:
+    file: ../common/vars/vars.common.yml
+
+- name: clj tools manual install
+  vars: 
+    CLJ_VERSION: "1.10.1.727"
+  shell: "curl -o- https://download.clojure.org/install/linux-install-{{ CLJ_VERSION }}.sh | bash"
+  args:
+    executable: /bin/bash
+    creates: "{{ COMMON_EXEC_DIR }}/clj"
+
+- name: apt repo for planck
+  apt_repository: 
+    repo: "ppa:mfikes/planck"
+    update_cache: yes
+
+- name: apt packages
+  apt:
+    name: # alphabetical order
+      - planck
+
+# TODO: consider moving to common software afer evaluation
+- name: jet manual install (a better jq with using clojure)
+  shell: "curl -sLf https://raw.githubusercontent.com/borkdude/jet/master/install | bash"
+  args:
+    executable: /bin/bash
+    creates: "{{ COMMON_EXEC_DIR }}/jet"
+
+- name: babashka manual install (a supplement to bash scripting)
+  shell: "curl -sLf https://raw.githubusercontent.com/borkdude/babashka/master/install | bash"
+  args:
+    executable: /bin/bash
+    creates: "{{ COMMON_EXEC_DIR }}/bb"

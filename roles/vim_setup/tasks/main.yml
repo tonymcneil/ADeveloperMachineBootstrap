@@ -1,0 +1,57 @@
+---
+- name: include common vars
+  include_vars:
+    file: ../common/vars/vars.common.yml
+
+- name: define local fact
+  set_fact:
+    NVIM_EXEC: "{{ COMMON_EXEC_DIR }}/nvim"
+    SPACEVIM_INSTALL_DIR: "{{ COMMON_INSTALL_DIR }}/neovim"
+    SPACEVIM_CONFIG_PROJECT_DIR: "{{ COMMON_LOCAL_PROJECTS_DIR }}/Vim/SpaceVimConfig"
+
+- name: neovim manual download / install
+  get_url:
+    url: "https://github.com/neovim/neovim/releases/download/stable/nvim.appimage"
+    dest: "{{ NVIM_EXEC }}"
+    mode: '0775'
+  register: nvim_install
+
+- name: vi and vim links to nvim
+  file:
+    src: "{{ NVIM_EXEC }}"
+    dest: "{{ COMMON_EXEC_DIR }}/{{ item }}"
+    state: link
+  with_items:
+    - "vi"
+    - "vim"
+    - "editor"
+  when: nvim_install is successful
+
+- name: pip3 packages (no extra args)
+  pip:
+    executable: pip3
+    name:
+      - notedown
+      - neovim
+
+- name: spacevim manual install
+  become_user: "{{ ansible_facts.env.SUDO_USER }}"
+  shell: "curl -sLf https://spacevim.org/install.sh | bash"
+  args:
+    executable: /bin/bash
+    creates: "{{ COMMON_LOCAL_USER_HOME }}/.SpaceVim"
+
+- name: Personal SpaceVim config repo
+  become_user: "{{ ansible_facts.env.SUDO_USER }}"
+  git:
+    repo: "git@github.com:tonymcneil/SpaceVimConfig.git"
+    dest: "{{ SPACEVIM_CONFIG_PROJECT_DIR }}"
+
+- name: Personal SpaceVim config sym link
+  become_user: "{{ ansible_facts.env.SUDO_USER }}"
+  file:
+    src: "{{ SPACEVIM_CONFIG_PROJECT_DIR }}/dot_SpaceVim.d"
+    dest: "{{ COMMON_LOCAL_USER_HOME }}/.SpaceVim.d"
+    state: link
+
+

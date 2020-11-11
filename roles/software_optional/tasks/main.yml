@@ -1,0 +1,29 @@
+---
+- name: janus-graph user
+  user:
+    name: janus
+
+- name: janus-graph group
+  group:
+    name: janus
+
+- name: janus-graph manual install
+  vars:
+    janus_version: 0.4.0
+    janus_folder_name: janusgraph-{{ janus_version }}-hadoop2
+    janus_zip_file_name: "{{ janus_folder_name }}.zip"
+    janus_install_dir: "/opt"
+  unarchive:
+    src: https://github.com/JanusGraph/janusgraph/releases/download/v{{ janus_version }}/{{ janus_zip_file_name }}
+    dest: "{{ janus_install_dir }}"
+    creates: "{{ janus_install_dir }}/{{ janus_folder_name }}"
+    owner: janus
+    group: janus
+    remote_src: yes
+    mode: u=rwX,g=rwX,o=rX
+
+- name: janus-graph user
+  user:
+    name: "{{ ansible_facts.env.SUDO_USER }}"
+    groups: janus
+    append: yes

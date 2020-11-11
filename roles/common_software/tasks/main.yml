@@ -1,0 +1,192 @@
+---
+- name: include common vars
+  include_vars:
+    file: ../common/vars/vars.common.yml
+
+- name: register ubuntu release var
+  command: lsb_release -cs
+  register: ubuntu_release
+
+- name: apt keys by url
+  apt_key:
+    url: "{{ item }}"
+  with_items:
+    - https://download.docker.com/linux/ubuntu/gpg # docker
+
+- name: apt keys by id
+  apt_key:
+    id: "{{ item }}"
+  with_items:
+    - 7568D9BB55FF9E5287D586017AE645C0CF8E292A # pritunl client
+
+- name: apt repos
+  apt_repository: 
+    repo: '{{item}}'
+    update_cache: yes
+  with_items:
+    - ppa:yubico/stable 
+    - deb https://repo.pritunl.com/stable/apt {{ ubuntu_release.stdout }} main
+    - deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ ubuntu_release.stdout }} stable
+
+- name: apt packages
+  apt:
+    name: # alphabetical order
+      - bleachbit
+      # - cifs-utils
+      - clamav
+      - containerd.io
+      - curl
+      - docker-ce
+      - docker-ce-cli 
+      - docker-compose
+      - git
+      # - keyutils
+      - libemail-outlook-message-perl # for msgconvert
+      - libxml2-utils # for xmllint
+      - meld # for diffs
+      - paperkey
+      - pritunl-client-electron
+      - python3-pip
+      - rlwrap
+      # - samba
+      # - samba-common
+      # - samba-common-bin
+      # - smb4k
+      # - software-properties-common
+      # - subversion
+      # - texlive-xetex
+      # - texlive-fonts-recommended
+      # - texlive-generic-recommended
+      - vim
+      # - virtualbox
+      # - visualvm
+      - xcalib
+      - xsel
+      - yubikey-manager
+      # - yubikey-manager-qt
+      - yubikey-personalization-gui
+      - yubioath-desktop 
+
+
+########## Start Chrome
+- name: Chrome installation check
+  command: whereis -b google-chrome
+  register: chrome_installation_check
+  changed_when: chrome_installation_check.stdout == "google-chrome:"
+
+- name: Download Chrome
+  get_url: url="https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb" dest="/tmp/chrome.deb"
+  register: chrome_download
+  when: chrome_installation_check is changed
+
+- name: Install Chrome
+  apt: deb="{{ chrome_download.dest }}"
+  when: chrome_download is changed
+########## End Chrome
+
+- name: snap packages (classic)
+  snap:
+    classic: yes
+    name:
+      - slack
+      - aws-cli
+      - jq
+      # - code # VSCode
+      - pdftk
+      - kubectl
+      - zaproxy
+
+- name: pip3 packages (no extra args)
+  pip:
+    executable: pip3
+    name:
+      - aws-cdk.core
+      - boto3
+      - harview # Html ARchive viewer (https://www.electricmonk.nl/log/2013/09/16/quick-n-dirty-har-http-archive-viewer/)
+      - yq # the jq for yaml (IMHO kislyuk/yq is better than mikefarah/yq)
+
+- name: node version manager (nvm) manual install
+  become_user: "{{ ansible_facts.env.SUDO_USER }}"
+  vars: 
+    nvm_version: 0.36.0
+  shell: curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v{{ nvm_version }}/install.sh | bash
+  args:
+    executable: /bin/bash
+    chdir: "{{ COMMON_LOCAL_USER_HOME }}"
+    creates: "{{ COMMON_LOCAL_USER_HOME }}/.nvm/nvm.sh"
+
+- name: node configuration via nvm 
+  become_user: "{{ ansible_facts.env.SUDO_USER }}"
+  shell: . {{ COMMON_LOCAL_USER_HOME }}/.nvm/nvm.sh && nvm {{ item }}
+  args:
+    executable: /bin/bash
+  with_items:
+    - install node # latest
+    - install --lts # latest lts
+    - install lts/carbon # v8.x QOL most common
+    - install lts/dubnium # v10.x
+    - install lts/erbium # v12.x
+    - alias default lts/erbium # <--- default version to use
+
+- name: npm install global packages, configure current node version via nvm for each package
+  become_user: "{{ ansible_facts.env.SUDO_USER }}"
+  shell: . {{ COMMON_LOCAL_USER_HOME }}/.nvm/nvm.sh && {{ item }}
+  args:
+    executable: /bin/bash
+  with_items:
+    - nvm use lts/erbium && npm install -g aws-cdk
+
+########## SDKMAN START ########## 
+- name: sdkman manual install
+  become_user: "{{ ansible_facts.env.SUDO_USER }}"
+  shell: curl -o- https://get.sdkman.io | bash
+  register: sdkman_install
+  args:
+    executable: /bin/bash
+    creates: "{{ COMMON_LOCAL_USER_HOME }}/.sdkman"
+
+- name: sdkman install sdks
+  become_user: "{{ ansible_facts.env.SUDO_USER }}"
+  shell: . {{ COMMON_LOCAL_USER_HOME }}/.sdkman/bin/sdkman-init.sh && sdk {{ item }}
+  args:
+    executable: /bin/bash
+  with_items:
+    - install java 8.0.265-open
+    - install java 11.0.8-open
+  when: sdkman_install is successful
+########## SDKMAN END ########## 
+
+########## OWASP DEPENDENCY CHECK START ########## 
+- name: dependency-check group
+  group:
+    name: dep-check
+
+- name: dependency-check group membership
+  user:
+    name: "{{ ansible_facts.env.SUDO_USER }}"
+    groups: dep-check
+    append: yes
+
+- name: owasp dependency check cli download verify install
+  vars:
+    DEP_CHECK_VERSION: "6.0.2"
+    DEP_CHECK_KEY: "F9514E84AE3708288374BBBE097586CFEA37F9A6"
+    DEP_CHECK_DOWNLOAD: "/tmp/dep-check.zip"
+    DEP_CHECK_DOWNLOAD_ASC: "/tmp/dep-check.zip.asc"
+    DEP_CHECK_INSTALL_DIR: "{{ COMMON_INSTALL_DIR }}/dependency-check"
+    DEP_CHECK_EXEC: "{{ COMMON_EXEC_DIR }}/dependency-check"
+  shell: "gpg --keyserver hkp://keys.gnupg.net --recv-keys {{ DEP_CHECK_KEY }} &&
+          curl -Lso {{ DEP_CHECK_DOWNLOAD_ASC }} https://dl.bintray.com/jeremy-long/owasp/dependency-check-{{ DEP_CHECK_VERSION }}-release.zip.asc &&
+          curl -Lso {{ DEP_CHECK_DOWNLOAD }}     https://dl.bintray.com/jeremy-long/owasp/dependency-check-{{ DEP_CHECK_VERSION }}-release.zip &&
+          gpg --verify {{ DEP_CHECK_DOWNLOAD_ASC }} &&
+          gpg --keyserver hkp://keys.gnupg.net --batch --yes --delete-keys {{ DEP_CHECK_KEY }} &&
+          unzip {{ DEP_CHECK_DOWNLOAD }} -d {{ COMMON_INSTALL_DIR }} &&
+          chgrp -R dep-check {{ DEP_CHECK_INSTALL_DIR }} &&
+          chmod 775 {{ DEP_CHECK_INSTALL_DIR }} &&
+          ln -s {{ DEP_CHECK_INSTALL_DIR }}/bin/dependency-check.sh {{ DEP_CHECK_EXEC }}
+          "
+  args:
+    executable: /bin/bash
+    creates: "{{ DEP_CHECK_EXEC }}"
+########## OWASP DEPENDENCY CHECK END ########## 
+  
