@@ -67,6 +67,11 @@
       - yubikey-personalization-gui
       - yubioath-desktop 
 
+- name: yubikey quick shell script for oath
+  template:
+   src: templates/yubikey-oath.sh
+   dest: "{{ COMMON_EXEC_DIR }}/oath"
+   mode: 0755
 
 ########## Start Chrome
 - name: Chrome installation check
