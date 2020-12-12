@@ -87,6 +87,8 @@
 - name: Install Chrome
   apt: deb="{{ chrome_download.dest }}"
   when: chrome_download is changed
+
+
 ########## End Chrome
 
 - name: snap packages (classic)
@@ -96,7 +98,7 @@
       - slack
       - aws-cli
       - jq
-      # - code # VSCode
+      - code # VSCode
       - pdftk
       - kubectl
       - zaproxy
@@ -140,6 +142,10 @@
     executable: /bin/bash
   with_items:
     - nvm use lts/erbium && npm install -g aws-cdk
+    - nvm use lts/erbium && npm install -g eslint
+    - nvm use lts/erbium && npm install -g jshint
+    - nvm use lts/erbium && npm install -g js-beautify
+    - nvm use lts/erbium && npm install -g standard
 
 ########## SDKMAN START ########## 
 - name: sdkman manual install
@@ -194,4 +200,4 @@
     executable: /bin/bash
     creates: "{{ DEP_CHECK_EXEC }}"
 ########## OWASP DEPENDENCY CHECK END ########## 
-  
+
