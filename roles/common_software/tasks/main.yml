@@ -158,12 +158,12 @@
 
 - name: sdkman install sdks
   become_user: "{{ ansible_facts.env.SUDO_USER }}"
-  shell: . {{ COMMON_LOCAL_USER_HOME }}/.sdkman/bin/sdkman-init.sh && sdk {{ item }}
+  shell: test -e {{ COMMON_LOCAL_USER_HOME }}/.sdkman/candidates/java/{{item.version}} || ( source {{ COMMON_LOCAL_USER_HOME }}/.sdkman/bin/sdkman-init.sh && sdk {{ item.action }} {{ item.version }} )
   args:
     executable: /bin/bash
   with_items:
-    - install java 8.0.265-open
-    - install java 11.0.8-open
+    - { action: "install java", version: "8.0.265-open" }
+    - { action: "install java", version: "11.0.8-open" }
   when: sdkman_install is successful
 ########## SDKMAN END ########## 
 
