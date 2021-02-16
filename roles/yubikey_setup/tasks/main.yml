@@ -1,0 +1,83 @@
+---
+- name: include common vars
+  include_vars:
+    file: ../common/vars/vars.common.yml
+
+# - name: register ubuntu release var
+#   command: lsb_release -cs
+#   register: ubuntu_release
+
+# - name: apt keys by url
+#   apt_key:
+#     url: "{{ item }}"
+#   with_items:
+#     - https://download.docker.com/linux/ubuntu/gpg # docker
+
+# - name: apt keys by id
+#   apt_key:
+#     id: "{{ item }}"
+#   with_items:
+#     - 7568D9BB55FF9E5287D586017AE645C0CF8E292A # pritunl client
+
+- name: apt repos
+  apt_repository: 
+    repo: '{{item}}'
+    update_cache: yes
+  with_items:
+    - ppa:yubico/stable 
+
+- name: apt packages
+  apt:
+    name: # alphabetical order
+      - cryptsetup
+      - dirmngr
+      - gnupg2
+      - gnupg-agent
+      - hopenpgp-tools
+      - keyutils
+      - paperkey
+      - pcscd
+      - python3-pip
+      - python3-pyscard
+      - scdaemon
+      - secure-delete
+      - uuid
+      - wget
+      - yubikey-personalization
+      - yubikey-personalization-gui
+      - yubikey-manager
+      # - yubikey-manager-qt
+      - yubioath-desktop 
+# NOTE: may additionally need (particularly for Ubuntu 18.04 and 20.04):
+# libssl-dev swig libpcsclite-dev
+
+- name: yubikey quick shell script for oath
+  template:
+   src: templates/yubikey-oath.sh
+   dest: "{{ COMMON_EXEC_DIR }}/oath"
+   mode: 0755
+
+- name: start PC/SC Smart Card Daemon
+  shell: service pcscd start 
+  args:
+    executable: /bin/bash
+
+# - name: snap packages (classic)
+#   snap:
+#     classic: yes
+#     name:
+#       - slack
+#       - aws-cli
+#       - jq
+#       - code # VSCode
+#       - pdftk
+#       - kubectl
+#       - zaproxy
+
+# - name: pip3 packages (no extra args)
+#   pip:
+#     executable: pip3
+#     name:
+#       - PyOpenSSL
+#       - yubikey-manager
+

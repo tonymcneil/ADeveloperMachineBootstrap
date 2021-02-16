@@ -24,7 +24,6 @@
     repo: '{{item}}'
     update_cache: yes
   with_items:
-    - ppa:yubico/stable 
     - deb https://repo.pritunl.com/stable/apt {{ ubuntu_release.stdout }} main
     - deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ ubuntu_release.stdout }} stable
 
@@ -62,16 +61,6 @@
       # - visualvm
       - xcalib
       - xsel
-      - yubikey-manager
-      # - yubikey-manager-qt
-      - yubikey-personalization-gui
-      - yubioath-desktop 
-
-- name: yubikey quick shell script for oath
-  template:
-   src: templates/yubikey-oath.sh
-   dest: "{{ COMMON_EXEC_DIR }}/oath"
-   mode: 0755
 
 ########## Start Chrome
 - name: Chrome installation check
