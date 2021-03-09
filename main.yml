@@ -12,6 +12,6 @@
     # - common_scm_repos
     # - cljc_setup
     # - vim_setup
-    - yubikey_setup
+    # - yubikey_setup
     # - emacs_setup
     # - software_optional
