@@ -38,6 +38,7 @@
       - docker-ce
       - docker-ce-cli 
       - docker-compose
+      - dos2unix
       - git
       # - keyutils
       - libemail-outlook-message-perl # for msgconvert
@@ -77,8 +78,6 @@
 - name: Install Chrome
   apt: deb="{{ chrome_download.dest }}"
   when: chrome_download is changed
-
-
 ########## End Chrome
 
 - name: snap packages (classic)
@@ -105,7 +104,7 @@
 - name: node version manager (nvm) manual install
   become_user: "{{ ansible_facts.env.SUDO_USER }}"
   vars: 
-    nvm_version: 0.36.0
+    nvm_version: 0.37.2
   shell: curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v{{ nvm_version }}/install.sh | bash
   args:
     executable: /bin/bash
@@ -136,6 +135,15 @@
     - nvm use lts/erbium && npm install -g jshint
     - nvm use lts/erbium && npm install -g js-beautify
     - nvm use lts/erbium && npm install -g standard
+
+- name: aws cli session manager plugin manual install
+  vars:
+    SSM_PLUG_DOWNLOAD: "/tmp/session-manager-plugin.deb"
+  shell: "curl -Lso {{ SSM_PLUG_DOWNLOAD }} https://s3.amazonaws.com/session-manager-downloads/plugin/latest/ubuntu_64bit/session-manager-plugin.deb &&
+          sudo dpkg -i {{ SSM_PLUG_DOWNLOAD }}"
+  args:
+    executable: /bin/bash
+    creates: "{{ COMMON_EXEC_DIR }}/session-manager-plugin"
 
 ########## SDKMAN START ########## 
 - name: sdkman manual install
