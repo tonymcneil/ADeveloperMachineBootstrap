@@ -85,7 +85,6 @@
     classic: yes
     name:
       - slack
-      - aws-cli
       - jq
       - code # VSCode
       - pdftk
@@ -135,6 +134,8 @@
     - nvm use lts/erbium && npm install -g jshint
     - nvm use lts/erbium && npm install -g js-beautify
     - nvm use lts/erbium && npm install -g standard
+    - nvm use lts/erbium && npm install -g typescript
+    - nvm use lts/erbium && npm install -g tslint
 
 - name: aws cli session manager plugin manual install
   vars:

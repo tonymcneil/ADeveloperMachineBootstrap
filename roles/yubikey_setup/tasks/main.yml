@@ -62,22 +62,3 @@
   args:
     executable: /bin/bash
 
-# - name: snap packages (classic)
-#   snap:
-#     classic: yes
-#     name:
-#       - slack
-#       - aws-cli
-#       - jq
-#       - code # VSCode
-#       - pdftk
-#       - kubectl
-#       - zaproxy
-
-# - name: pip3 packages (no extra args)
-#   pip:
-#     executable: pip3
-#     name:
-#       - PyOpenSSL
-#       - yubikey-manager
-
