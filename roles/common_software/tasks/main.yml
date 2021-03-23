@@ -136,6 +136,7 @@
     - nvm use lts/erbium && npm install -g standard
     - nvm use lts/erbium && npm install -g typescript
     - nvm use lts/erbium && npm install -g tslint
+    - nvm use lts/erbium && npm install -g typescript-formatter
 
 - name: aws cli session manager plugin manual install
   vars:
