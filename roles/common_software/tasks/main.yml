@@ -98,6 +98,7 @@
       - aws-cdk.core
       - boto3
       - harview # Html ARchive viewer (https://www.electricmonk.nl/log/2013/09/16/quick-n-dirty-har-http-archive-viewer/)
+      - git-filter-repo
       - yq # the jq for yaml (IMHO kislyuk/yq is better than mikefarah/yq)
 
 - name: node version manager (nvm) manual install
