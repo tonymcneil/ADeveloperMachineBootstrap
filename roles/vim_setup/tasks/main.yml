@@ -27,31 +27,31 @@
     - "editor"
   when: nvim_install is successful
 
-- name: pip3 packages (no extra args)
-  pip:
-    executable: pip3
-    name:
-      - notedown
-      - neovim
-
-- name: spacevim manual install
-  become_user: "{{ ansible_facts.env.SUDO_USER }}"
-  shell: "curl -sLf https://spacevim.org/install.sh | bash"
-  args:
-    executable: /bin/bash
-    creates: "{{ COMMON_LOCAL_USER_HOME }}/.SpaceVim"
-
-- name: Personal SpaceVim config repo
-  become_user: "{{ ansible_facts.env.SUDO_USER }}"
-  git:
-    repo: "git@github.com:tonymcneil/SpaceVimConfig.git"
-    dest: "{{ SPACEVIM_CONFIG_PROJECT_DIR }}"
-
-- name: Personal SpaceVim config sym link
-  become_user: "{{ ansible_facts.env.SUDO_USER }}"
-  file:
-    src: "{{ SPACEVIM_CONFIG_PROJECT_DIR }}/dot_SpaceVim.d"
-    dest: "{{ COMMON_LOCAL_USER_HOME }}/.SpaceVim.d"
-    state: link
+#- name: pip3 packages (no extra args)
+#  pip:
+#    executable: pip3
+#    name:
+#      - notedown
+#      - neovim
+#
+#- name: spacevim manual install
+#  become_user: "{{ ansible_facts.env.SUDO_USER }}"
+#  shell: "curl -sLf https://spacevim.org/install.sh | bash"
+#  args:
+#    executable: /bin/bash
+#    creates: "{{ COMMON_LOCAL_USER_HOME }}/.SpaceVim"
+#
+#- name: Personal SpaceVim config repo
+#  become_user: "{{ ansible_facts.env.SUDO_USER }}"
+#  git:
+#    repo: "git@github.com:tonymcneil/SpaceVimConfig.git"
+#    dest: "{{ SPACEVIM_CONFIG_PROJECT_DIR }}"
+#
+#- name: Personal SpaceVim config sym link
+#  become_user: "{{ ansible_facts.env.SUDO_USER }}"
+#  file:
+#    src: "{{ SPACEVIM_CONFIG_PROJECT_DIR }}/dot_SpaceVim.d"
+#    dest: "{{ COMMON_LOCAL_USER_HOME }}/.SpaceVim.d"
+#    state: link
 
 

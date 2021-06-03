@@ -7,11 +7,11 @@
 
   roles: # order matters
     - common_software
-    # - common_permissions
+    - common_permissions
     # - common_config
-    # - common_scm_repos
+    - common_scm_repos
     # - cljc_setup
-    # - vim_setup
-    # - yubikey_setup
-    # - emacs_setup
+    - vim_setup
+    - yubikey_setup
+    - emacs_setup
     # - software_optional

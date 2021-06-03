@@ -13,19 +13,19 @@
   with_items:
     - https://download.docker.com/linux/ubuntu/gpg # docker
 
-- name: apt keys by id
-  apt_key:
-    id: "{{ item }}"
-  with_items:
-    - 7568D9BB55FF9E5287D586017AE645C0CF8E292A # pritunl client
+#- name: apt keys by id
+#  apt_key:
+#    id: "{{ item }}"
+#  with_items:
+#    - 7568D9BB55FF9E5287D586017AE645C0CF8E292A # pritunl client
 
-- name: apt repos
-  apt_repository: 
-    repo: '{{item}}'
-    update_cache: yes
-  with_items:
-    - deb https://repo.pritunl.com/stable/apt {{ ubuntu_release.stdout }} main
-    - deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ ubuntu_release.stdout }} stable
+#- name: apt repos
+#  apt_repository: 
+#    repo: '{{item}}'
+#    update_cache: yes
+#  with_items:
+#    - deb https://repo.pritunl.com/stable/apt {{ ubuntu_release.stdout }} main
+#    - deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ ubuntu_release.stdout }} stable
 
 - name: apt packages
   apt:
@@ -45,7 +45,7 @@
       - libxml2-utils # for xmllint
       - meld # for diffs
       - paperkey
-      - pritunl-client-electron
+      # - pritunl-client-electron
       - python3-pip
       - python3-venv 
       - rlwrap
@@ -164,7 +164,7 @@
     executable: /bin/bash
   with_items:
     - { action: "install java", version: "8.0.265-open" }
-    - { action: "install java", version: "11.0.8-open" }
+    - { action: "install java", version: "11.0.11-open" }
   when: sdkman_install is successful
 ########## SDKMAN END ########## 
 
@@ -179,26 +179,26 @@
     groups: dep-check
     append: yes
 
-- name: owasp dependency check cli download verify install
-  vars:
-    DEP_CHECK_VERSION: "6.0.2"
-    DEP_CHECK_KEY: "F9514E84AE3708288374BBBE097586CFEA37F9A6"
-    DEP_CHECK_DOWNLOAD: "/tmp/dep-check.zip"
-    DEP_CHECK_DOWNLOAD_ASC: "/tmp/dep-check.zip.asc"
-    DEP_CHECK_INSTALL_DIR: "{{ COMMON_INSTALL_DIR }}/dependency-check"
-    DEP_CHECK_EXEC: "{{ COMMON_EXEC_DIR }}/dependency-check"
-  shell: "gpg --keyserver hkp://keys.gnupg.net --recv-keys {{ DEP_CHECK_KEY }} &&
-          curl -Lso {{ DEP_CHECK_DOWNLOAD_ASC }} https://dl.bintray.com/jeremy-long/owasp/dependency-check-{{ DEP_CHECK_VERSION }}-release.zip.asc &&
-          curl -Lso {{ DEP_CHECK_DOWNLOAD }}     https://dl.bintray.com/jeremy-long/owasp/dependency-check-{{ DEP_CHECK_VERSION }}-release.zip &&
-          gpg --verify {{ DEP_CHECK_DOWNLOAD_ASC }} &&
-          gpg --keyserver hkp://keys.gnupg.net --batch --yes --delete-keys {{ DEP_CHECK_KEY }} &&
-          unzip {{ DEP_CHECK_DOWNLOAD }} -d {{ COMMON_INSTALL_DIR }} &&
-          chgrp -R dep-check {{ DEP_CHECK_INSTALL_DIR }} &&
-          chmod 775 {{ DEP_CHECK_INSTALL_DIR }} &&
-          ln -s {{ DEP_CHECK_INSTALL_DIR }}/bin/dependency-check.sh {{ DEP_CHECK_EXEC }}
-          "
-  args:
-    executable: /bin/bash
-    creates: "{{ DEP_CHECK_EXEC }}"
+#- name: owasp dependency check cli download verify install
+#  vars:
+#    DEP_CHECK_VERSION: "6.0.2"
+#    DEP_CHECK_KEY: "F9514E84AE3708288374BBBE097586CFEA37F9A6"
+#    DEP_CHECK_DOWNLOAD: "/tmp/dep-check.zip"
+#    DEP_CHECK_DOWNLOAD_ASC: "/tmp/dep-check.zip.asc"
+#    DEP_CHECK_INSTALL_DIR: "{{ COMMON_INSTALL_DIR }}/dependency-check"
+#    DEP_CHECK_EXEC: "{{ COMMON_EXEC_DIR }}/dependency-check"
+#  shell: "gpg --keyserver hkp://keys.gnupg.net --recv-keys {{ DEP_CHECK_KEY }} &&
+#          curl -Lso {{ DEP_CHECK_DOWNLOAD_ASC }} https://dl.bintray.com/jeremy-long/owasp/dependency-check-{{ DEP_CHECK_VERSION }}-release.zip.asc &&
+#          curl -Lso {{ DEP_CHECK_DOWNLOAD }}     https://dl.bintray.com/jeremy-long/owasp/dependency-check-{{ DEP_CHECK_VERSION }}-release.zip &&
+#          gpg --verify {{ DEP_CHECK_DOWNLOAD_ASC }} &&
+#          gpg --keyserver hkp://keys.gnupg.net --batch --yes --delete-keys {{ DEP_CHECK_KEY }} &&
+#          unzip {{ DEP_CHECK_DOWNLOAD }} -d {{ COMMON_INSTALL_DIR }} &&
+#          chgrp -R dep-check {{ DEP_CHECK_INSTALL_DIR }} &&
+#          chmod 775 {{ DEP_CHECK_INSTALL_DIR }} &&
+#          ln -s {{ DEP_CHECK_INSTALL_DIR }}/bin/dependency-check.sh {{ DEP_CHECK_EXEC }}
+#          "
+#  args:
+#    executable: /bin/bash
+#    creates: "{{ DEP_CHECK_EXEC }}"
 ########## OWASP DEPENDENCY CHECK END ########## 
 

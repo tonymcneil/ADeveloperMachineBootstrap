@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # first time use run: ykman oath remember-password
-OUTPUT=`ykman oath code "${1}"`
+OUTPUT=`ykman oath caacounts code "${1}"`
 CODE=`echo $OUTPUT | awk '{print $NF}'`
 
 if [ $? -eq 0 ]; then
